@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { format } from 'date-fns'
 import { formatFecha, formatHora } from '@/lib/utils'
-import { Calendar, LogOut, CheckCircle, XCircle, Clock, RefreshCw } from 'lucide-react'
+import { Calendar, LogOut, CheckCircle, XCircle, Clock, RefreshCw, Tag } from 'lucide-react'
+import Link from 'next/link'
 import type { Reserva, EstadoReserva } from '@/types'
 
 const ESTADOS: { value: EstadoReserva; label: string; color: string }[] = [
@@ -78,9 +79,15 @@ export default function AdminPage() {
               <p className="text-xs text-slate-500">Agendalo</p>
             </div>
           </div>
-          <button onClick={handleLogout} className="flex items-center gap-2 text-sm text-slate-500 hover:text-red-400 transition">
-            <LogOut className="w-4 h-4" /> Salir
-          </button>
+          <div className="flex items-center gap-2">
+            <Link href="/admin/servicios"
+              className="flex items-center gap-2 text-sm text-slate-400 hover:text-indigo-400 transition border border-white/5 hover:border-indigo-500/30 px-3 py-1.5 rounded-xl">
+              <Tag className="w-4 h-4" /> Servicios
+            </Link>
+            <button onClick={handleLogout} className="flex items-center gap-2 text-sm text-slate-500 hover:text-red-400 transition px-3 py-1.5">
+              <LogOut className="w-4 h-4" /> Salir
+            </button>
+          </div>
         </div>
       </header>
 
