@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { format, addDays, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Calendar, Clock, User, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+import { Calendar, Clock, User, ChevronLeft, ChevronRight, Loader2, Home } from 'lucide-react'
+import Link from 'next/link'
 import type { Servicio } from '@/types'
 
 type Paso = 'servicio' | 'fecha' | 'hora' | 'datos' | 'enviando'
@@ -41,6 +42,12 @@ export default function ReservarPage() {
 
   const dias = Array.from({ length: 14 }, (_, i) => addDays(new Date(), semanaOffset * 7 + i + 1))
 
+  function volver() {
+    if (paso === 'fecha') setPaso('servicio')
+    else if (paso === 'hora') setPaso('fecha')
+    else if (paso === 'datos') setPaso('hora')
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.nombre || !form.email) { setError('Nombre y email son requeridos'); return }
@@ -67,26 +74,25 @@ export default function ReservarPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="min-h-screen bg-[#0f0f14]">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-4 py-4">
+      <div className="bg-[#13131a] border-b border-white/5 px-4 py-4">
         <div className="max-w-2xl mx-auto flex items-center gap-3">
+          <Link href="/" className="p-1.5 rounded-lg hover:bg-white/5 transition text-slate-400 hover:text-white">
+            <Home className="w-5 h-5" />
+          </Link>
           {paso !== 'servicio' && paso !== 'enviando' && (
-            <button onClick={() => {
-              if (paso === 'fecha') setPaso('servicio')
-              else if (paso === 'hora') setPaso('fecha')
-              else if (paso === 'datos') setPaso('hora')
-            }} className="p-1.5 rounded-lg hover:bg-slate-100 transition">
-              <ChevronLeft className="w-5 h-5 text-slate-500" />
+            <button onClick={volver} className="p-1.5 rounded-lg hover:bg-white/5 transition text-slate-400 hover:text-white">
+              <ChevronLeft className="w-5 h-5" />
             </button>
           )}
-          <h1 className="font-bold text-slate-900 text-lg">Nueva reserva</h1>
+          <h1 className="font-bold text-white text-lg">Nueva reserva</h1>
         </div>
         {/* Barra de progreso */}
         <div className="max-w-2xl mx-auto mt-3 flex gap-1">
           {(['servicio', 'fecha', 'hora', 'datos'] as Paso[]).map((p, i) => (
             <div key={p} className={`h-1 flex-1 rounded-full transition-colors ${
-              ['servicio','fecha','hora','datos','enviando'].indexOf(paso) >= i ? 'bg-indigo-500' : 'bg-slate-200'
+              ['servicio','fecha','hora','datos','enviando'].indexOf(paso) >= i ? 'bg-indigo-500' : 'bg-white/10'
             }`} />
           ))}
         </div>
@@ -97,22 +103,22 @@ export default function ReservarPage() {
         {/* PASO 1: Servicio */}
         {paso === 'servicio' && (
           <div>
-            <p className="text-slate-500 mb-6 flex items-center gap-2"><Calendar className="w-4 h-4" /> Selecciona un servicio</p>
+            <p className="text-slate-400 mb-6 flex items-center gap-2 text-sm"><Calendar className="w-4 h-4" /> Selecciona un servicio</p>
             <div className="grid gap-3">
               {servicios.map(s => (
                 <button
                   key={s.id}
                   onClick={() => { setServicioSel(s); setPaso('fecha') }}
-                  className="w-full text-left bg-white border-2 border-slate-200 hover:border-indigo-400 rounded-2xl p-5 transition group"
+                  className="w-full text-left bg-[#13131a] border-2 border-white/5 hover:border-indigo-500/50 rounded-2xl p-5 transition group"
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="font-semibold text-slate-900 group-hover:text-indigo-600 transition">{s.nombre}</p>
+                      <p className="font-semibold text-white group-hover:text-indigo-400 transition">{s.nombre}</p>
                       {s.descripcion && <p className="text-sm text-slate-500 mt-1">{s.descripcion}</p>}
                     </div>
                     <div className="text-right shrink-0 ml-4">
                       <p className="text-sm text-slate-500 flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{s.duracion} min</p>
-                      {s.precio && <p className="font-bold text-indigo-600">${s.precio}</p>}
+                      {s.precio && <p className="font-bold text-indigo-400">${s.precio}</p>}
                     </div>
                   </div>
                 </button>
@@ -124,18 +130,18 @@ export default function ReservarPage() {
         {/* PASO 2: Fecha */}
         {paso === 'fecha' && (
           <div>
-            <p className="text-slate-500 mb-2 flex items-center gap-2"><Calendar className="w-4 h-4" /> Selecciona una fecha</p>
-            <p className="text-sm text-slate-400 mb-6">Servicio: <span className="text-indigo-600 font-medium">{servicioSel?.nombre}</span></p>
+            <p className="text-slate-400 mb-2 flex items-center gap-2 text-sm"><Calendar className="w-4 h-4" /> Selecciona una fecha</p>
+            <p className="text-sm text-slate-600 mb-6">Servicio: <span className="text-indigo-400 font-medium">{servicioSel?.nombre}</span></p>
             <div className="flex items-center justify-between mb-4">
               <button onClick={() => setSemanaOffset(s => Math.max(0, s - 1))} disabled={semanaOffset === 0}
-                className="p-2 rounded-lg hover:bg-slate-100 disabled:opacity-30 transition">
+                className="p-2 rounded-lg hover:bg-white/5 disabled:opacity-30 transition text-slate-400">
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <span className="text-sm font-medium text-slate-600">
+              <span className="text-sm font-medium text-slate-400 capitalize">
                 {format(dias[0], "MMMM yyyy", { locale: es })}
               </span>
               <button onClick={() => setSemanaOffset(s => s + 1)}
-                className="p-2 rounded-lg hover:bg-slate-100 transition">
+                className="p-2 rounded-lg hover:bg-white/5 transition text-slate-400">
                 <ChevronRight className="w-5 h-5" />
               </button>
             </div>
@@ -149,11 +155,13 @@ export default function ReservarPage() {
                     disabled={esDom}
                     onClick={() => { setFechaSel(str); setPaso('hora') }}
                     className={`flex flex-col items-center py-3 rounded-xl text-sm font-medium transition
-                      ${esDom ? 'opacity-30 cursor-not-allowed' : ''}
-                      ${fechaSel === str ? 'bg-indigo-600 text-white' : 'bg-white hover:bg-indigo-50 text-slate-700 border border-slate-200'}
+                      ${esDom ? 'opacity-20 cursor-not-allowed' : ''}
+                      ${fechaSel === str
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-[#13131a] hover:bg-indigo-500/10 text-slate-300 border border-white/5 hover:border-indigo-500/30'}
                     `}
                   >
-                    <span className="text-xs opacity-70">{format(dia, 'EEE', { locale: es })}</span>
+                    <span className="text-xs opacity-60 capitalize">{format(dia, 'EEE', { locale: es })}</span>
                     <span className="text-base font-bold">{format(dia, 'd')}</span>
                   </button>
                 )
@@ -165,16 +173,16 @@ export default function ReservarPage() {
         {/* PASO 3: Hora */}
         {paso === 'hora' && (
           <div>
-            <p className="text-slate-500 mb-2 flex items-center gap-2"><Clock className="w-4 h-4" /> Selecciona un horario</p>
-            <p className="text-sm text-slate-400 mb-6">
+            <p className="text-slate-400 mb-2 flex items-center gap-2 text-sm"><Clock className="w-4 h-4" /> Selecciona un horario</p>
+            <p className="text-sm text-slate-600 mb-6 capitalize">
               {format(parseISO(fechaSel), "EEEE d 'de' MMMM", { locale: es })} · {servicioSel?.nombre}
             </p>
             {loadingSlots ? (
               <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-indigo-400" /></div>
             ) : slots.length === 0 ? (
-              <div className="text-center py-12 text-slate-400">
+              <div className="text-center py-12 text-slate-500">
                 <p className="font-medium">No hay horarios disponibles este día</p>
-                <button onClick={() => setPaso('fecha')} className="mt-4 text-indigo-600 text-sm hover:underline">Elige otra fecha</button>
+                <button onClick={() => setPaso('fecha')} className="mt-4 text-indigo-400 text-sm hover:underline">Elige otra fecha</button>
               </div>
             ) : (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -183,7 +191,9 @@ export default function ReservarPage() {
                     key={slot}
                     onClick={() => { setHoraSel(slot); setPaso('datos') }}
                     className={`py-3 rounded-xl text-sm font-semibold transition border
-                      ${horaSel === slot ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200 hover:border-indigo-400'}
+                      ${horaSel === slot
+                        ? 'bg-indigo-600 text-white border-indigo-600'
+                        : 'bg-[#13131a] text-slate-300 border-white/5 hover:border-indigo-500/40 hover:text-white'}
                     `}
                   >
                     {slot}
@@ -197,58 +207,43 @@ export default function ReservarPage() {
         {/* PASO 4: Datos */}
         {paso === 'datos' && (
           <div>
-            <p className="text-slate-500 mb-2 flex items-center gap-2"><User className="w-4 h-4" /> Tus datos</p>
-            <p className="text-sm text-slate-400 mb-6">
+            <p className="text-slate-400 mb-2 flex items-center gap-2 text-sm"><User className="w-4 h-4" /> Tus datos</p>
+            <p className="text-sm text-slate-600 mb-6 capitalize">
               {format(parseISO(fechaSel), "EEEE d 'de' MMMM", { locale: es })} · {horaSel} · {servicioSel?.nombre}
             </p>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Nombre completo *</label>
-                <input
-                  type="text"
-                  required
-                  value={form.nombre}
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">Nombre completo *</label>
+                <input type="text" required value={form.nombre}
                   onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))}
                   placeholder="Juan Pérez"
-                  className="w-full border-2 border-slate-200 focus:border-indigo-400 rounded-xl px-4 py-3 outline-none transition"
-                />
+                  className="w-full bg-[#13131a] border-2 border-white/5 focus:border-indigo-500 rounded-xl px-4 py-3 text-white placeholder-slate-600 outline-none transition" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Email *</label>
-                <input
-                  type="email"
-                  required
-                  value={form.email}
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">Email *</label>
+                <input type="email" required value={form.email}
                   onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                   placeholder="tu@email.com"
-                  className="w-full border-2 border-slate-200 focus:border-indigo-400 rounded-xl px-4 py-3 outline-none transition"
-                />
+                  className="w-full bg-[#13131a] border-2 border-white/5 focus:border-indigo-500 rounded-xl px-4 py-3 text-white placeholder-slate-600 outline-none transition" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Teléfono</label>
-                <input
-                  type="tel"
-                  value={form.telefono}
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">Teléfono</label>
+                <input type="tel" value={form.telefono}
                   onChange={e => setForm(f => ({ ...f, telefono: e.target.value }))}
                   placeholder="+593 99 000 0000"
-                  className="w-full border-2 border-slate-200 focus:border-indigo-400 rounded-xl px-4 py-3 outline-none transition"
-                />
+                  className="w-full bg-[#13131a] border-2 border-white/5 focus:border-indigo-500 rounded-xl px-4 py-3 text-white placeholder-slate-600 outline-none transition" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Notas (opcional)</label>
-                <textarea
-                  value={form.notas}
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">Notas (opcional)</label>
+                <textarea value={form.notas}
                   onChange={e => setForm(f => ({ ...f, notas: e.target.value }))}
                   placeholder="Cualquier información adicional..."
                   rows={3}
-                  className="w-full border-2 border-slate-200 focus:border-indigo-400 rounded-xl px-4 py-3 outline-none transition resize-none"
-                />
+                  className="w-full bg-[#13131a] border-2 border-white/5 focus:border-indigo-500 rounded-xl px-4 py-3 text-white placeholder-slate-600 outline-none transition resize-none" />
               </div>
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-              <button
-                type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-2xl transition mt-2"
-              >
+              {error && <p className="text-red-400 text-sm">{error}</p>}
+              <button type="submit"
+                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-2xl transition mt-2">
                 Confirmar reserva
               </button>
             </form>
@@ -258,8 +253,8 @@ export default function ReservarPage() {
         {/* ENVIANDO */}
         {paso === 'enviando' && (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <Loader2 className="w-10 h-10 animate-spin text-indigo-500" />
-            <p className="text-slate-500 font-medium">Confirmando tu reserva...</p>
+            <Loader2 className="w-10 h-10 animate-spin text-indigo-400" />
+            <p className="text-slate-400 font-medium">Confirmando tu reserva...</p>
           </div>
         )}
       </div>
